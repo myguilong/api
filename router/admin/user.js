@@ -2,14 +2,15 @@ module.exports = app =>{
     const Router = require('koa-router')
     const User = require('../../models/user')
     const passport = require('../../utils/passport')
+    const Money = require('../../models/money')
     let router = new Router({prefix:'/users'})
-   
     router.post('/regist',async ctx=>{
         //注册接口
         console.log('调用接口')
-        let {username,password} = ctx.request.body
+        let {username,password,pintai,name} = ctx.request.body
         //因为只有系统管理员才能添加账号,不做验证码验证
         //权限管理后期再考虑,注册只需要传入用户账号和密码
+        console.log(username)
         if(username){
             //用用户名去数据库查找是否存在相同的
             let res = await User.findOne({username})
@@ -22,17 +23,33 @@ module.exports = app =>{
                 return false
             }
             let nuser = await User.create({
-                username,password
+                username,password,pintai,name
             })
-            if(nuser){
-                ctx.body={
-                    code:0,
-                    msg:'添加管理员成功'
+            console.log(nuser,'注册用户')
+            if(pintai=="admin"){
+                if(nuser){
+                    ctx.body={
+                        code:0,
+                        msg:'添加管理员成功'
+                    }
+                }
+            }else{
+                if(nuser){
+                    await Money.create({
+                        userid:nuser._id,
+                        money:500
+                    })
+                    ctx.body={
+                        code:0,
+                        msg:'注册成功'
+                    }
                 }
             }
+           
         }
     })
     //登陆接口
+    // https://wq.tdzh.cc/stss/tdzh_wx/bound.html?back=1
     router.post('/signin', async (ctx, next) => {
         //使用passport.authenticate进行验证
         return passport.authenticate('local', (error, user, info, status) => {
@@ -42,14 +59,23 @@ module.exports = app =>{
               msg: error
             }
           } else {
-            if (user) {
+            console.log(user,'124')
+            if (user.pintai=='admin') {
+              
               ctx.body = {
                 code: 0,
-                msg: '登陆成功'
+                msg: '管理系统登录成功'
               }
               return ctx.login(user)
              
-            } else {
+            } else if(user.pintai=='web'){
+                ctx.body = {
+                    code: 0,
+                    msg: '客户端登录成功'
+                  }
+                  return ctx.login(user)
+            }
+             else {
               ctx.body = {
                 code: 1,
                 msg: info
@@ -77,11 +103,12 @@ module.exports = app =>{
     })
     router.get('/getuser',async (ctx,next)=>{
         if(ctx.isAuthenticated()){
-            const {username,name} = ctx.session.passport.user
+            const {username,name,_id} = ctx.session.passport.user
             ctx.body = {
                 code:0,
                 user:username,
-                name
+                name,
+                _id
             }
         }else{
             ctx.body = {

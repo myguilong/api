@@ -55,7 +55,7 @@ module.exports = app => {
             let list = await model.find({
                 status:1
             }).populate({
-                path:'parentCategory'
+                path:'parentCategory',
             })
             ctx.body = {
                 code: 0,
