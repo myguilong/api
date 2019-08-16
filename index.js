@@ -29,6 +29,8 @@ require('./router/admin/rest')(app)
 require('./router/admin/comities')(app)
 require('./router/admin/user')(app)
 require('./router/web/cart')(app)
+require('./router/web/webuser')(app)
+require('./router/web/order')(app)
 app.listen('3000',()=>{
     console.log('服务启动监听端口3000')
 })

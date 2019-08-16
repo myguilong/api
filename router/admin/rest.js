@@ -8,7 +8,6 @@ module.exports = app => {
         return require(`../../models/${value}`)
     }
     router.post('/create', async ctx => {
-        console.log(ctx.params.resources)
         // const model = require(`../../models/${ctx.params.resources}`)
         if (ctx.params.resources == 'commission') {
             //如果调用的是佣金的创建就先去查找佣金比例在数据库中是否存在
@@ -66,10 +65,8 @@ module.exports = app => {
     
     })
     router.get('/getInfo', async ctx => {
-        console.log(ctx.query.id)
         const model = Model(ctx.params.resources)
         const res = await model.findById(`${ctx.query.id}`)
-        console.log(res)
         ctx.body = {
             code: 0,
             msg: '获取信息成功',
