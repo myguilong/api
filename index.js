@@ -4,13 +4,14 @@ const koabody = require('koa-bodyparser')
 const session = require('koa-generic-session')
 const passport = require('./utils/passport')
 const app = new koa()
-app.use(async (ctx, next) => {
-  ctx.set('Access-Control-Allow-Origin', ctx.headers.origin); // 很奇怪的是，使用 * 会出现一些其他问题
-  ctx.set('Access-Control-Allow-Headers', 'content-type');
-  ctx.set('Access-Control-Allow-Methods', 'OPTIONS,GET,HEAD,PUT,POST,DELETE,PATCH')
-  ctx.set('Access-Control-Allow-Credentials', true);
-  await next();
-});
+app.use(cors({
+  exposeHeaders: ['WWW-Authenticate', 'Server-Authorization', 'Date'],
+  maxAge: 100,
+  credentials: true,
+  allowMethods: ['GET', 'POST', 'OPTIONS','DELETE'],
+  allowHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Custom-Header', 'anonymous'],
+}));
+
 app.keys = ['tg','keys']
 app.use(koabody({
     extendTypes: ['json', 'form', 'text']
@@ -31,6 +32,7 @@ require('./router/admin/user')(app)
 require('./router/web/cart')(app)
 require('./router/web/webuser')(app)
 require('./router/web/order')(app)
+require('./router/web/header')(app)
 app.listen('3000',()=>{
     console.log('服务启动监听端口3000')
 })
