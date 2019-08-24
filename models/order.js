@@ -11,6 +11,15 @@ const schema = new mongoose.Schema({
          type:String
      },
      money:{
+         type:Number
+     },
+     headerId:{
+         type:mongoose.SchemaTypes.ObjectId
+     },
+     status:{
+         type:Number//订单状态
+     },
+     time:{
          type:String
      }
 })

@@ -1,5 +1,6 @@
 //团长的数据模型
 const mongoose = require('mongoose')
+const user = require('./user')
 const router = new mongoose.Schema({
     name: {
         type: String, //团长名字
@@ -8,6 +9,10 @@ const router = new mongoose.Schema({
     status:{
         //团长的状态,0为待审核 1为可用的 3为已经废弃
         type:Number
+    },
+    userId:{
+        type:mongoose.SchemaTypes.ObjectId,
+        ref:'/User'
     },
     address: {
         type: String, //团长地址

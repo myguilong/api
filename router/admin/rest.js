@@ -48,19 +48,54 @@ module.exports = app => {
             }
             return false
         }
+        
         //如果是获得商品的分类还需要带上分类的名字
         if(ctx.params.resources == 'comities'){
             // queryOptions.populate= 'parentCategory'
-            let list = await model.find({
-                status:1
-            }).populate({
-                path:'parentCategory',
-            })
-            ctx.body = {
-                code: 0,
-                msg: '获取列表成功',
-                data: list
+            console.log(ctx.query.id)
+            if(ctx.query.id==1){
+                let list = await model.find({
+                    status:1,
+                  
+                }).populate({
+                    path:'parentCategory',
+                })
+                ctx.body = {
+                    code: 0,
+                    msg: '获取列表成功',
+                    data: list
+                }
+                return 
             }
+            if(ctx.query.id!='undefined'){
+                let list = await model.find({
+                    status:1,
+                    parentCategory:ctx.query.id
+                }).populate({
+                    path:'parentCategory',
+                })
+                ctx.body = {
+                    code: 0,
+                    msg: '获取列表成功',
+                    data: list
+                }
+             
+            }else{
+                let list = await model.find({
+                    status:1,
+                  
+                }).populate({
+                    path:'parentCategory',
+                })
+                ctx.body = {
+                    code: 0,
+                    msg: '获取列表成功',
+                    data: list
+                }
+                return 
+            }
+           
+            
         }
     
     })
@@ -73,10 +108,13 @@ module.exports = app => {
             data: res
         }
     })
-    router.delete('/delete', async ctx => {
+    router.get('/delete', async ctx => {
+        console.log('调用通用删除接口')
         // console.log(ctx.query.id)
         //此处如果删除的是分类,先拿分类的id查找是否存在商品
         const model = Model(ctx.params.resources)
+        console.log(model)
+        // console.log(ctx.query.id)
         await model.findByIdAndRemove(ctx.query.id)
         ctx.body = {
             code: 0,

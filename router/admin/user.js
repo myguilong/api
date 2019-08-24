@@ -87,9 +87,7 @@ module.exports = app =>{
        
       })
     router.get('/exit',async (ctx,next)=>{
-    
         await ctx.logout()
-      
         if(!ctx.isAuthenticated()){
             //判断用户是否登陆
             ctx.body = {

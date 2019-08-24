@@ -4,6 +4,31 @@ module.exports = app => {
     const router = new Router({
         prefix: '/header'
     })
+    router.get('/info',async ctx=>{
+        //返回自己是团长的信息
+        const {id} = ctx.query
+        const res = await header.findOne({
+            userId:id
+        }) 
+        if(res){
+            ctx.body = {
+                code:0,
+                msg:'用户是团长',
+                data:{
+                    nmae:res.name,
+                    address:res.address,
+                    imgSrc:res.imgSrc,
+                    userId:res.userId,
+                    unaddress:res.unaddress
+                }
+            }
+        }else{
+            ctx.body = {
+                code:-1,
+                msg:"用户不是团长请申请"
+            }
+        }
+    })
     router.post('/create', async ctx => {
         //团长申请接口
         const {
@@ -15,18 +40,20 @@ module.exports = app => {
             imgSrc,
             phone,
             unaddress,
+            userId
         } = ctx.request.body
      let res = await header.create({
             name,
             address,
             money: 0,
-            imgSr ,
+            imgSrc,
             longitude,
             latitude,
             location: [longitude, latitude],
             city,
             phone,
             unaddress,
+            userId,
             status:0
         })
         console.log(res)
@@ -36,7 +63,7 @@ module.exports = app => {
         }
     })
     router.get('/find', async ctx => {
-        const {longitude,latitude} = ctx.query
+     const {longitude,latitude} = ctx.query
      let res = await header.aggregate([
             {
                 $geoNear:{
@@ -52,6 +79,19 @@ module.exports = app => {
                 }
             }
         ])
+        let arr=res.map(item=>{
+              return {
+                  name:item.name,
+                  address:item.address,
+                  imgSrc:item.imgSrc,
+                  city:item.city,
+                  phone:item.phone,
+                  unaddress:item.unaddress,
+                  userId:item.userId,
+                  distance:item.distance>1000?(Math.round(item.distance/100)/10).toFixed(1)+'公里':item.distance+'米'
+                  
+              }
+        })
         // let res = await header.find({
         //     'location': {
         //         $near: {
@@ -66,8 +106,9 @@ module.exports = app => {
         console.log(res)
         ctx.body = {
               code:0,
-              data:res
+              data:arr
         }
     })
+    router.get('')
     app.use(router.routes()).use(router.allowedMethods())
 }
