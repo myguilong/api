@@ -4,6 +4,7 @@ module.exports = app =>{
     const passport = require('../../utils/passport')
     const Money = require('../../models/money')
     let router = new Router({prefix:'/users'})
+    const addtoken = require('../../token/addtoken')
     router.post('/regist',async ctx=>{
         //注册接口
         console.log('调用接口')
@@ -51,39 +52,73 @@ module.exports = app =>{
     //登陆接口
     // https://wq.tdzh.cc/stss/tdzh_wx/bound.html?back=1
     router.post('/signin', async (ctx, next) => {
+        //修改使用token登录
+         const  {username,password,pintai} = ctx.request.body
+         const res = await User.findOne({
+              username,password,pintai
+         })
+        
+         if(res){
+             //当前用户存在
+            console.log(res,'res')
+            let tk = addtoken({name:res.name,id:res._id})
+            console.log(tk)
+        
+              await User.findOneAndUpdate({
+                 name:res.username,
+                 $set:{
+                     token:tk
+                 }
+             })
+            ctx.body={
+                code:0,
+                tk,
+                user:{
+                    name:res.name,
+                    id:res._id
+                }
+            }
+         }else{
+             ctx.body = {
+                code:-1,
+                msg:'当前用户不存在'
+             }
+            
+         }
         //使用passport.authenticate进行验证
-        return passport.authenticate('local', (error, user, info, status) => {
-          if (error) {
-            ctx.body = {
-              code: -1,
-              msg: error
-            }
-          } else {
-            console.log(user,'124')
-            if (user.pintai=='admin') {
+        //改为使用token验证登录,现在这种登录方式在移动端中使用不了,且小程序也使用不了
+        // return passport.authenticate('local', (error, user, info, status) => {
+        //   if (error) {
+        //     ctx.body = {
+        //       code: -1,
+        //       msg: error
+        //     }
+        //   } else {
+        //     console.log(user,'124')
+        //     if (user.pintai=='admin') {
               
-              ctx.body = {
-                code: 0,
-                msg: '管理系统登录成功'
-              }
-              return ctx.login(user)
+        //       ctx.body = {
+        //         code: 0,
+        //         msg: '管理系统登录成功'
+        //       }
+        //       return ctx.login(user)
              
-            } else if(user.pintai=='web'){
-                ctx.body = {
-                    code: 0,
-                    msg: '客户端登录成功'
-                  }
-                  return ctx.login(user)
-            }
-             else {
-              ctx.body = {
-                code: 1,
-                msg: info
-              }
-            }
+        //     } else if(user.pintai=='web'){
+        //         ctx.body = {
+        //             code: 0,
+        //             msg: '客户端登录成功'
+        //           }
+        //           return ctx.login(user)
+        //     }
+        //      else {
+        //       ctx.body = {
+        //         code: 1,
+        //         msg: info
+        //       }
+        //     }
       
-          }
-        })(ctx, next)
+        //   }
+        // })(ctx, next)
        
       })
     router.get('/exit',async (ctx,next)=>{

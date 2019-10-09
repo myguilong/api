@@ -15,6 +15,9 @@ const schema = new mongoose.Schema({
     },
     pintai:{
         type:String //判断用户的登录账户为平台还是管理系统
+    },
+    token:{
+        type:String
     }
 })
 module.exports = mongoose.model('User',schema)

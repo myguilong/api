@@ -26,7 +26,39 @@ module.exports = app =>{
         data:res
       }
     })
-    router.post('/pay',async ctx=>{
+     router.post('/deleteOrder',async ctx=>{
+       //删除订单
+       const {orderid,userid,orderNo} = ctx.request.body
+       if(!userid){
+           ctx.body = {
+             code:-1,
+             msg:"用户id未传入参数"
+           }
+           return
+       }
+       if(!orderNo){
+         //订单号未传入
+         ctx.body={
+            code:-1,
+            msg:'用户的订单号没有正确传入'
+         }
+       }
+       order.deleteOne({
+         orderNo,userid
+       }).then(res=>{
+        ctx.body = {
+          code:0,
+          msg:'删除未支付的订单成功'
+        }
+       }).catch(err=>{
+         ctx.body={
+           code:-1,
+           msg:"删除失败",
+           errMsg:err
+         }
+       })      
+     })
+     router.post('/pay',async ctx=>{
       //传入订单号，减去金额,该接口为模拟支付
         const {orderNo,userid} = ctx.request.body
         const res = await order.findOne({
@@ -39,9 +71,7 @@ module.exports = app =>{
           userid:res.userid
         })
         //可用额度数据model
-        const heade = await header.findOne({
-            userId:res.headerId
-        })
+        const heade = await header.findById(res.headerId)
         //团长的信息model
         await header.findByIdAndUpdate(heade._id,{
           money:(heade.money+res.money*0.1).toFixed(2)
@@ -62,25 +92,23 @@ module.exports = app =>{
               code:0,
               msg:'支付成功待商家发货'
         }
+    
+        
     })
     router.post('/create',async ctx=>{
           const {foodsList,userid,headerId} = ctx.request.body
           //这是用户所在购物车的id
           //只要一提交到这个接口
           //就要去在order中创建订单表
-          console.log(foodsList.length)
           let arr = []
           let sum = 0
           const timestrap = new Date().getTime()//时间戳
           const time = new Date().getTime()
-          console.log(timestrap+userid.substr(userid.length-1,1),'修改的订单号')
           const orderNo = timestrap+userid.substr(userid.length-1,1)
-          console.log(orderNo,'修改的订单号')
           for(let i=0;i<foodsList.length;i++){
             let res = await carts.findById(foodsList[i]).populate({path:'commites'})
             sum+=res.commites.price*res.number
               if(res.commites.limit){
-                console.log('当前为限购的商品')
                 restrications.create({
                   userid,limitId:res.commites._id,orderNo,time
                 })

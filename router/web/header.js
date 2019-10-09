@@ -56,7 +56,7 @@ module.exports = app => {
             userId,
             status:0
         })
-        console.log(res)
+  
         ctx.body = {
             code: 0,
             msg: '申请成功,等待审批'
@@ -87,7 +87,7 @@ module.exports = app => {
                   city:item.city,
                   phone:item.phone,
                   unaddress:item.unaddress,
-                  userId:item.userId,
+                  userId:item._id,
                   distance:item.distance>1000?(Math.round(item.distance/100)/10).toFixed(1)+'公里':item.distance+'米'
                   
               }
@@ -103,7 +103,6 @@ module.exports = app => {
         //         }
         //     }
         // })
-        console.log(res)
         ctx.body = {
               code:0,
               data:arr

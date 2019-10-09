@@ -1,6 +1,8 @@
 //此处存放通用接口
 module.exports = app => {
     const Router = require('koa-router')
+    const Verification = require('../../token/Verificationtoken')
+    const User = require('../../models/user')
     const router = new Router({
         prefix: '/rest/:resources'
     })
@@ -52,7 +54,6 @@ module.exports = app => {
         //如果是获得商品的分类还需要带上分类的名字
         if(ctx.params.resources == 'comities'){
             // queryOptions.populate= 'parentCategory'
-            console.log(ctx.query.id)
             if(ctx.query.id==1){
                 let list = await model.find({
                     status:1,
@@ -79,7 +80,6 @@ module.exports = app => {
                     msg: '获取列表成功',
                     data: list
                 }
-             
             }else{
                 let list = await model.find({
                     status:1,
@@ -112,14 +112,36 @@ module.exports = app => {
         console.log('调用通用删除接口')
         // console.log(ctx.query.id)
         //此处如果删除的是分类,先拿分类的id查找是否存在商品
-        const model = Model(ctx.params.resources)
-        console.log(model)
-        // console.log(ctx.query.id)
-        await model.findByIdAndRemove(ctx.query.id)
-        ctx.body = {
-            code: 0,
-            msg: '删除成功'
+        const res = await User.findOne({
+            token:ctx.query.token
+        })
+        if(res){
+            const model = Model(ctx.params.resources)
+            const token = ctx.query.token
+       
+            // console.log(ctx.query.id)
+           
+            //判断用户的登录信息
+            if(Verification(token)){
+               await model.findByIdAndRemove(ctx.query.id)
+               ctx.body = {
+                code: 0,
+                msg: '删除成功'
+               }
+            }else{
+                ctx.body={
+                    code:-1,
+                    msg:'登陆信息已经过期'
+                }
+            }
+        }else{
+            ctx.body={
+                code:-1,
+                msg:'登陆信息已经过期'
+            }
         }
+       
+       
     })
     router.post('/edit', async ctx => {
         const model = Model(ctx.params.resources)

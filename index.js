@@ -2,8 +2,13 @@ const koa = require('koa')
 const cors = require('koa2-cors')
 const koabody = require('koa-bodyparser')
 const session = require('koa-generic-session')
+const server = require('koa-static')
 const passport = require('./utils/passport')
+const path = require('path')
 const app = new koa()
+const staticPath = './public'
+const home = server(path.join(__dirname,staticPath))
+// app.use(server(path.join(__dirname+'./public/')))
 app.use(cors({
   exposeHeaders: ['WWW-Authenticate', 'Server-Authorization', 'Date'],
   maxAge: 100,
@@ -12,9 +17,13 @@ app.use(cors({
   allowHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Custom-Header', 'anonymous'],
 }));
 app.keys = ['tg','keys']
+app.use(home)
 app.use(koabody({
     extendTypes: ['json', 'form', 'text']
   }))
+// app.use((ctx,next)=>{
+//   console.log('调用')
+// })
 app.use(session({
   cookie:{
     secure:false,

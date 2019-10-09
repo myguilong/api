@@ -12,7 +12,7 @@ module.exports = app =>{
           userid:userid,
           limitId:commitesid
        })
-       console.log(data)
+     
        if(data.length!=0){
            ctx.body = {
                code:-1,
@@ -49,7 +49,7 @@ module.exports = app =>{
    })
    router.get('/getCart',async ctx=>{
        const {userid} = ctx.query
-       console.log(userid)
+    
        const res = await cart.find({
            userid
        }).populate({
