@@ -76,7 +76,10 @@ module.exports = app => {
         delDir('public');
     })
     router.get('/exportOrder', async ctx => {
+
         //导出订单接口，接三个参数 团长 起始时间和结束结束时间 测试阶段不做限制
+        const {startTime,endTime} = ctx.query
+        
         let res = await order.find().populate({
             path: 'headerId'
         })
