@@ -6,6 +6,7 @@ module.exports = app =>{
     const restrications = require('../../models/restrictions')
     const money = require('../../models/money')
     const header = require('../../models/headers')
+    const BillRecord = require('../../models/BillRecord')
     const router = new Router({
        prefix:'/order'
     })
@@ -88,12 +89,14 @@ module.exports = app =>{
             status:1
           }
         })
+        await BillRecord.create({
+          money:res.money,
+          formOrderNO:res.orderNo
+        })
         ctx.body = {
               code:0,
               msg:'支付成功待商家发货'
-        }
-    
-        
+        }      
     })
     router.post('/create',async ctx=>{
           const {foodsList,userid,headerId} = ctx.request.body

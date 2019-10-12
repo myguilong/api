@@ -41,6 +41,7 @@ require('./router/web/webuser')(app)
 require('./router/web/order')(app)
 require('./router/web/header')(app)
 require('./router/admin/adminheader')(app)
+require('./router/admin/moneyManager')(app)
 app.listen('3000',()=>{
     console.log('服务启动监听端口3000')
 })

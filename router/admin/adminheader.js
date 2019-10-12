@@ -50,7 +50,16 @@ module.exports = app => {
         //date:时间 - 时间
         //团长id
         //如果不传则返回数据库前十条最新数据
-        let res = await order.find().populate({
+        
+        const {headerId,startTime,endTime} = ctx.query
+        console.log(headerId,startTime,endTime)
+        let data = {
+            
+        }
+        headerId?data[`headerId`]=headerId:null
+        console.log(data)
+        startTime?data.time={$lte:endTime,$gte:startTime}:null
+        let res = await order.find(data).populate({
             path: 'headerId'
         }).limit(10)
         ctx.body = {
@@ -74,15 +83,26 @@ module.exports = app => {
     }
     router.delete('/deleteOrderXlsx', async ctx => {
         delDir('public');
+        ctx.body = {
+            code:-1,
+            msg:'删除成功'
+        }
     })
     router.get('/exportOrder', async ctx => {
 
         //导出订单接口，接三个参数 团长 起始时间和结束结束时间 测试阶段不做限制
-        const {startTime,endTime} = ctx.query
-        
-        let res = await order.find().populate({
+        const {startTime,endTime,headerId} = ctx.query
+        console.log(headerId,startTime,endTime)
+        let data = {
+            
+        }
+        headerId?data[`headerId`]=headerId:null
+        console.log(data)
+        startTime?data.time={$lte:endTime,$gte:startTime}:null
+        let res = await order.find(data).populate({
             path: 'headerId'
         })
+        console.log(res)
         let arr = res.map(item => {
             return {
                 list: item.list,
@@ -105,10 +125,11 @@ module.exports = app => {
             })
             ws1.addRow(arr)
         })
-        workbook.xlsx.writeFile(`public/a.xlsx`)
+        const fileName = `${headerId}${new Date().getTime()}.xlsx`
+        workbook.xlsx.writeFile(`public/${fileName}`)
         ctx.body = {
             code: 0,
-            data: arr
+            fileName: fileName
         }
     })
     app.use(router.routes()).use(router.allowedMethods())
