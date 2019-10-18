@@ -49,8 +49,30 @@ module.exports = app =>{
            
         }
     })
+    router.get('/getAdminList',async ctx=>{
+        //返回所有的系统管理员
+        const res = await User.find({
+            pintai:"admin"
+        })
+        ctx.body = {
+            code:0,
+            data:res
+        }
+    })
+    router.post('/addAdmin',async ctx=>{
+        //新增加管理员的接口
+        const {name,username,password} = ctx.request.body
+        await User.create({
+           name,username,password,
+           pintai:"admin"
+
+        })
+        ctx.body = {
+            code:0,
+            msg:'添加成功'
+        }
+    })
     //登陆接口
-    // https://wq.tdzh.cc/stss/tdzh_wx/bound.html?back=1
     router.post('/signin', async (ctx, next) => {
         //修改使用token登录
          const  {username,password,pintai} = ctx.request.body

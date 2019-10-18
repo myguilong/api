@@ -1,6 +1,7 @@
 module.exports = app =>{
     const Router = require('koa-router')
     const commites = require('../../models/comities')
+    const commission = require('../../models/commission')
     const carts = require('../../models/cart')
     const order = require('../../models/order')
     const restrications = require('../../models/restrictions')
@@ -61,6 +62,12 @@ module.exports = app =>{
      })
      router.post('/pay',async ctx=>{
       //传入订单号，减去金额,该接口为模拟支付
+      console.log('调用')
+      const commM =await commission.find()
+     console.log(typeof commM[0].commit)
+    //  ctx.body = {
+    //    code:-1
+    //  }
         const {orderNo,userid} = ctx.request.body
         const res = await order.findOne({
           orderNo,userid
@@ -75,7 +82,7 @@ module.exports = app =>{
         const heade = await header.findById(res.headerId)
         //团长的信息model
         await header.findByIdAndUpdate(heade._id,{
-          money:(heade.money+res.money*0.1).toFixed(2)
+          money:(heade.money+res.money*commM[0].commit).toFixed(2)
         })
         //去修改团长的佣金数据
         // console.log(resmoney)
