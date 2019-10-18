@@ -98,7 +98,7 @@ module.exports = app =>{
         })
         await BillRecord.create({
           money:res.money,
-          formOrderNO:res.orderNo
+          fromOrderNO:res.orderNo
         })
         ctx.body = {
               code:0,

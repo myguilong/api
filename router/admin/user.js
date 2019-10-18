@@ -62,15 +62,35 @@ module.exports = app =>{
     router.post('/addAdmin',async ctx=>{
         //新增加管理员的接口
         const {name,username,password} = ctx.request.body
-        await User.create({
-           name,username,password,
-           pintai:"admin"
 
-        })
-        ctx.body = {
-            code:0,
-            msg:'添加成功'
+        try {
+            await User.create({
+                name,username,password,
+                pintai:"admin"
+     
+             })
+            ctx.body = {
+                code:0,
+                msg:'添加成功'
+            }
+        } catch (error) {
+            // console.log(error)
+            ctx.body = {
+                code:-1,
+                msg:'添加失败'
+            }
         }
+       
+        // if(res){
+    
+        // }else{
+        //     ctx.body = {
+        //         code:-1,
+        //         msg:'添加失败'
+        //     }
+        // }
+        // console.log(res)
+        
     })
     //登陆接口
     router.post('/signin', async (ctx, next) => {
